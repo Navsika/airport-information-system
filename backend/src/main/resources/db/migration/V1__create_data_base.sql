@@ -67,9 +67,9 @@ CREATE TABLE aircrafts
     aircraft_id 			INT GENERATED ALWAYS AS IDENTITY,
     registration_number 	VARCHAR(8) NOT NULL UNIQUE,
     model_id 				INTEGER NOT NULL,
-    airline_id 			INTEGER NOT NULL,
+    airline_id 			    INTEGER NOT NULL,
     manufacture_year 		SMALLINT NOT NULL,
-    last_maintenance_date DATE,
+    last_maintenance_date   DATE,
     flight_hours 			INTEGER NOT NULL,
 
     CONSTRAINT pk_aircrafts PRIMARY KEY (aircraft_id),
@@ -259,5 +259,5 @@ CREATE TABLE check_ins
   		REFERENCES tickets(ticket_id)
   		ON UPDATE CASCADE,
   	CONSTRAINT chk_baggage_count CHECK (baggage_count >= 0),
-  	CONSTRAINT chk_total_baggafe CHECK (total_baggage_weight >= 0)
+  	CONSTRAINT chk_total_baggage CHECK (total_baggage_weight >= 0)
 );
