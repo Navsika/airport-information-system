@@ -1,9 +1,8 @@
 package org.example.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.PastOrPresent;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,8 +34,7 @@ public class Aircraft {
     @PastOrPresent(message = "Дата последнего техобслуживания не может быть в будущем")
     @Column(name = "last_maintenance_date")
     private LocalDate lastMaintenanceDate;
-    @Positive(message = "Часы налета не могут быть отрицательными")
+    @PositiveOrZero(message = "Часы налета не могут быть отрицательными")
     @Column(name = "flight_hours", nullable = false)
     private Integer flightHours;
-
 }
