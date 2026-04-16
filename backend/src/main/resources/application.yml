@@ -2,6 +2,13 @@ server:
   port: 8080
 
 spring:
+  web:
+    cors:
+      mappings:
+        "/**":
+          allowed-origins: "http://localhost:5173"
+          allowed-methods: "*"
+          allowed-headers: "*"
   datasource:
     url: jdbc:postgresql://localhost:5432/airport_db
     username: admin

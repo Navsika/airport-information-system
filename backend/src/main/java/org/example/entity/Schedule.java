@@ -1,14 +1,12 @@
 package org.example.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Getter
@@ -37,5 +35,5 @@ public class Schedule {
     private LocalTime arrivalTime;
     @Positive(message = "Количество дней не может быть отрицательным")
     @Column(name = "arrival_day_offset", nullable = false)
-    private Integer arrivalDayOffset;
+    private Short arrivalDayOffset;
 }

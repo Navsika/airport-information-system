@@ -12,7 +12,7 @@ public class AircraftDto {
     private String registrationNumber;
     private Integer modelId;
     private Integer airlineId;
-    private Integer manufactureYear;
+    private Short manufactureYear;
     private LocalDate lastMaintenanceDate;
     private Integer flightHours;
 }

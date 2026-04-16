@@ -30,11 +30,11 @@ public class Airport {
 
     public static Airport toEntity(AirportDto airportDto) {
         Airport airport = new Airport();
-        if (airportDto.getId() != null) {
-            airport.setAirportId(airportDto.getId());
+        if (airportDto.getAirportId() != null) {
+            airport.setAirportId(airportDto.getAirportId());
         }
         //то есть если нам передали id то мы его передаем в entit
-        airport.setAirportName(airportDto.getName());
+        airport.setAirportName(airportDto.getAirportName());
         airport.setIataCode(airportDto.getIataCode());
         airport.setCountry(airportDto.getCountry());
         airport.setCity(airportDto.getCity());
@@ -44,9 +44,9 @@ public class Airport {
     public AirportDto toDto(){
         AirportDto airportDto = new AirportDto();
         if (this.getAirportId() != null){
-            airportDto.setId(this.getAirportId());
+            airportDto.setAirportId(this.getAirportId());
         }
-        airportDto.setName(this.getAirportName());
+        airportDto.setAirportName(this.getAirportName());
         airportDto.setIataCode(this.getIataCode());
         airportDto.setCountry(this.getCountry());
         airportDto.setCity(this.getCity());

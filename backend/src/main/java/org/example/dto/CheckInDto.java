@@ -15,6 +15,6 @@ public class CheckInDto {
     private LocalDateTime checkInTime;
     private String counterNumber;
     private String terminal;
-    private Integer baggageCount;
+    private Short baggageCount;
     private BigDecimal totalBaggageWeight;
 }

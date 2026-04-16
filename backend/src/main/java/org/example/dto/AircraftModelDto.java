@@ -10,7 +10,7 @@ public class AircraftModelDto {
 
     private String modelName;
     private String manufacturer;
-    private Integer passengerCapacity;
+    private Short passengerCapacity;
     private Integer cargoCapacity;
-    private Integer maxSpeed;
+    private Short maxSpeed;
 }

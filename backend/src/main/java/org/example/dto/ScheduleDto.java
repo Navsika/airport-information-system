@@ -16,5 +16,5 @@ public class ScheduleDto {
     private Integer arrivalAirport;
     private LocalTime departureTime;
     private LocalTime arrivalTime;
-    private Integer arrivalDayOffset;
+    private Short arrivalDayOffset;
 }

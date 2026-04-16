@@ -1,8 +1,6 @@
 package org.example.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +10,6 @@ import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 
 @Getter
 @Setter
@@ -37,7 +34,7 @@ public class CheckIns {
     private String terminal;
     @PositiveOrZero(message = "Количество багажа не может быть отрицательным")
     @Column(name = "baggage_count", nullable = false)
-    private Integer baggageCount;
+    private Short baggageCount;
     @PositiveOrZero(message = "Вес багажа не может быть отрицательным")
     @Column(name = "total_baggage_weight", nullable = false)
     private BigDecimal totalBaggageWeight;

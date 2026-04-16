@@ -26,11 +26,11 @@ public class AircraftModel {
     private String manufacturer;
     @Positive(message = "Вместимость пассажиров должна быть больше 0")
     @Column(name = "passenger_capacity", nullable = false)
-    private Integer passengerCapacity;
+    private Short passengerCapacity;
     @Min(value = 0, message = "Грузоподъемность судна не может быть отрицательной")
     @Column(name = "cargo_capacity", nullable = false)
     private Integer cargoCapacity;
     @Positive(message = "Максимальная скорость превышает 0")
     @Column(name = "max_speed", nullable = false)
-    private Integer maxSpeed;
+    private Short maxSpeed;
 }

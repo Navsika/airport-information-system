@@ -30,7 +30,7 @@ public class Aircraft {
     private Integer airlineId;
     // тут нужно будет проверить
     @Column(name = "manufacture_year", nullable = false)
-    private Integer manufactureYear;
+    private Short manufactureYear;
     @PastOrPresent(message = "Дата последнего техобслуживания не может быть в будущем")
     @Column(name = "last_maintenance_date")
     private LocalDate lastMaintenanceDate;
