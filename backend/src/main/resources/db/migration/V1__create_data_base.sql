@@ -22,12 +22,13 @@ CREATE TABLE airlines
 CREATE TABLE aircraft_models
 (
     model_id 			INT GENERATED ALWAYS AS IDENTITY,
-    model_name 			VARCHAR(30) NOT NULL UNIQUE,
+    model_name 			VARCHAR(30) NOT NULL,
     manufacturer 		VARCHAR(50) NOT NULL,
     passenger_capacity 	SMALLINT NOT NULL,
     cargo_capacity 		INTEGER NOT NULL,
     max_speed 			SMALLINT NOT NULL,
 
+    CONSTRAINT uq_model_name_manufacturer UNIQUE (model_name, manufacturer),
   	CONSTRAINT pk_models PRIMARY KEY (model_id),
   	CONSTRAINT chk_passenger_capacity_positive CHECK(passenger_capacity > 0),
   	CONSTRAINT chk_cargo_capacity_positive CHECK(cargo_capacity >= 0),
