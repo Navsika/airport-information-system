@@ -20,10 +20,10 @@ public interface AircraftRepository extends JpaRepository<Aircraft, Integer> {
     // он должен находить по идее да? а как он узнает что за регистрационный номер,
     // если мы не будем показывать
     @Query("SELECT a FROM Aircraft a WHERE " +
-            "(:modelId IS NULL OR a.modelId = :modelId) AND" +
+            "(:modelId IS NULL OR a.modelId = :modelId) AND " +
             " (:airlineId IS NULL OR a.airlineId = :airlineId) AND " +
-            " (:manufactureYear IS NULL OR a.manufactureYear =: manufactureYear AND " +
-            " (:lastMaintenanceDate IS NULL OR a.lastMaintenanceDate = :lastMaintenanceDate) AND" +
+            " (:manufactureYear IS NULL OR a.manufactureYear = :manufactureYear) AND " +
+            " (:lastMaintenanceDate IS NULL OR a.lastMaintenanceDate = :lastMaintenanceDate) AND " +
             " (:flightHours IS NULL OR a.flightHours = :flightHours)")
     Page<Aircraft> findByFilters(
             @Param("modelId") Integer modelId,
@@ -36,7 +36,8 @@ public interface AircraftRepository extends JpaRepository<Aircraft, Integer> {
 
     @Query("SELECT a FROM Aircraft a WHERE a.lastMaintenanceDate < :threshold")
     Page<Aircraft> findNeedingMaintenance(
-            @Param("threshold") LocalDate threshold
+            @Param("threshold") LocalDate threshold,
+            Pageable pageable
     );
     //запрос для получения самолетов которым нужно тех обсулживание
     @Modifying
