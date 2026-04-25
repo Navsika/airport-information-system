@@ -175,6 +175,7 @@ CREATE TABLE tickets
   		ON DELETE CASCADE
   		ON UPDATE CASCADE,
 
+    CONSTRAINT uq_ticket_passenger_flight UNIQUE (passenger_id, flight_id);
     CONSTRAINT uq_ticket_flight_seat UNIQUE (flight_id, seat_number),
   	CONSTRAINT chk_ticket_class CHECK(ticket_class IN (
 'Business', 'Economy'))
