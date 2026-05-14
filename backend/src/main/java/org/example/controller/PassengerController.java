@@ -23,6 +23,11 @@ public class PassengerController {
         return ResponseEntity.ok(passengerService.getByPassportNumber(passportNumber));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<PassengerDto> getById(@PathVariable Integer id) {
+        return ResponseEntity.ok(passengerService.getById(id));
+    }
+
     @PostMapping
     public ResponseEntity<PassengerDto> createPassenger(@RequestBody @Valid PassengerDto dto) {
         PassengerDto created = passengerService.createPassenger(dto);

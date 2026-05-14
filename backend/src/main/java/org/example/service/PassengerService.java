@@ -40,4 +40,11 @@ public class PassengerService {
     public List<FlightPassengerDto> getPassengersByFlightId(Integer flightId) {
         return repository.findPassengersByFlightId(flightId);
     }
+
+    @Transactional(readOnly = true)
+    public PassengerDto getById(Integer id) {
+        Passenger passenger = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Пассажир с ID " + id + " не найден"));
+        return mapper.toDto(passenger);
+    }   
 }
