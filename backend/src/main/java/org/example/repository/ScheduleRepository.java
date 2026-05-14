@@ -1,6 +1,5 @@
 package org.example.repository;
 
-import org.example.dto.ScheduleDto;
 import org.example.dto.ScheduleSearchDto;
 import org.example.entity.Schedule;
 import org.springframework.data.jpa.repository.JpaRepository;

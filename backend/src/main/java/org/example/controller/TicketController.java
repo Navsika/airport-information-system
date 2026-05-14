@@ -1,6 +1,5 @@
 package org.example.controller;
 
-import jakarta.servlet.Servlet;
 import jakarta.validation.Valid;
 import org.example.dto.TicketDto;
 import org.example.service.TicketService;

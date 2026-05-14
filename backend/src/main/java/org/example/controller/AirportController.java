@@ -1,7 +1,6 @@
 package org.example.controller;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import org.example.dto.AirportDto;
 import org.example.service.AirportService;
 import org.springframework.data.domain.Page;

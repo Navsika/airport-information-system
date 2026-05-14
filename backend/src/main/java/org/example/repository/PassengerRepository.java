@@ -1,7 +1,6 @@
 package org.example.repository;
 
 import org.example.dto.FlightPassengerDto;
-import org.example.dto.PassengerDto;
 import org.example.entity.Passenger;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

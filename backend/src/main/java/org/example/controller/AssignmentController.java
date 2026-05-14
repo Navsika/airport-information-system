@@ -1,11 +1,8 @@
 package org.example.controller;
 
 import jakarta.validation.Valid;
-import org.example.dto.AirportDto;
 import org.example.dto.AssignmentDto;
-import org.example.entity.Assignment;
 import org.example.service.AssignmentService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
