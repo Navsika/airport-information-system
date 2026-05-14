@@ -4,8 +4,12 @@ import org.example.dto.AircraftModelDto;
 import org.example.entity.AircraftModel;
 import org.example.mapper.AircraftModelMapper;
 import org.example.repository.AircraftModelRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class AircraftModelService {
@@ -15,6 +19,16 @@ public class AircraftModelService {
     public AircraftModelService(AircraftModelRepository repository, AircraftModelMapper mapper) {
         this.repository = repository;
         this.mapper = mapper;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AircraftModelDto> getModelsByFilter(
+            String modelName, String manufacturer, Short passengerCapacity,
+            Integer cargoCapacity, Short maxSpeed, int page, int size) {
+
+        return repository.findModelByFilters(modelName, manufacturer, passengerCapacity,
+                        cargoCapacity, maxSpeed, PageRequest.of(page, size))
+                .map(mapper::toDto);
     }
 
     @Transactional(readOnly = true)
@@ -30,6 +44,13 @@ public class AircraftModelService {
         AircraftModel model = repository.findByModelName(modelName)
                 .orElseThrow(() -> new RuntimeException("Модель '" + modelName + "' не найдена"));
         return mapper.toDto(model);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AircraftModelDto> getAllForDropdown() {
+        return repository.findAll().stream()
+                .map(mapper::toDto)
+                .toList();
     }
 
     @Transactional

@@ -3,20 +3,29 @@ package org.example.controller;
 import jakarta.validation.Valid;
 import org.example.dto.FlightDto;
 import org.example.dto.FlightListDto;
+import org.example.dto.FlightPassengerDto;
+import org.example.dto.StatusHistoryDto;
 import org.example.service.FlightService;
+import org.example.service.PassengerService;
+import org.example.service.StatusHistoryService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/airport-info-system/api/flights")
 public class FlightController {
     private final FlightService flightService;
+    private final PassengerService passengerService;
+    private final StatusHistoryService statusHistoryService;
 
-    public FlightController(FlightService flightService) {
+    public FlightController(FlightService flightService, PassengerService passengerService, StatusHistoryService statusHistoryService) {
         this.flightService = flightService;
+        this.passengerService = passengerService;
+        this.statusHistoryService = statusHistoryService;
     }
 
     @GetMapping
@@ -40,11 +49,23 @@ public class FlightController {
     }
 
     @PatchMapping("/{flightId}")
-    public ResponseEntity<FlightDto> update(
+    public ResponseEntity<FlightDto> updateFlight(
             @PathVariable Integer flightId,
-            @RequestBody @Valid FlightDto dto) {
+            @RequestBody @Valid FlightDto dto,
+            @RequestParam(required = false) String reasonOfChange
+    ) {
 
-        FlightDto updated = flightService.updateFlight(flightId, dto);
+        FlightDto updated = flightService.updateFlight(flightId, dto, reasonOfChange);
         return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("/{flightId}/passengers")
+    public ResponseEntity<List<FlightPassengerDto>> getPassengers(@PathVariable Integer flightId) {
+        return ResponseEntity.ok(passengerService.getPassengersByFlightId(flightId));
+    }
+
+    @GetMapping("/{flightId}/status-history")
+    public ResponseEntity<List<StatusHistoryDto>> getStatusHistory(@PathVariable Integer flightId){
+        return ResponseEntity.ok(statusHistoryService.getHistoryByFlightId(flightId));
     }
 }

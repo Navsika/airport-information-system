@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class AircraftService {
@@ -55,6 +56,14 @@ public class AircraftService {
                         + id + " не найден"));
         return aircraftMapper.toDto(aircraft);
     }
+
+    @Transactional(readOnly = true)
+    public List<AircraftDto> getAllForDropdown() {
+        return aircraftRepository.findAll().stream()
+                .map(aircraftMapper::toDto)
+                .toList();
+    }
+
     @Transactional
     public AircraftDto createAircraft(AircraftDto aircraftDto){
         if (aircraftRepository.findByRegistrationNumber(aircraftDto.getRegistrationNumber()).isPresent()) {

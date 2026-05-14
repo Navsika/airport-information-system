@@ -11,6 +11,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+@RestController
+@RequestMapping("/airport-info-system/api/airlines")
 public class AirlineController {
     private final AirlineService airlineService;
 

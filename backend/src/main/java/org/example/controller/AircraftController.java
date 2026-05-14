@@ -6,9 +6,12 @@ import org.example.service.AircraftService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.List;
+
 @RestController
 @RequestMapping("/airport-info-system/api/aircrafts")
 public class AircraftController {
@@ -36,6 +39,11 @@ public class AircraftController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/list")
+    public ResponseEntity<List<AircraftDto>> getList() {
+        return ResponseEntity.ok(aircraftService.getAllForDropdown());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<AircraftDto> getById(@PathVariable Integer id){
         return ResponseEntity.ok(aircraftService.getAircraftById(id));
@@ -49,7 +57,11 @@ public class AircraftController {
     @PostMapping
     public ResponseEntity<AircraftDto> createAircraft(@RequestBody @Valid AircraftDto aircraftDto){
         AircraftDto created = aircraftService.createAircraft(aircraftDto);
-        URI location = URI.create("/api/aircrafts" + created.getAircraftId());
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(created.getAircraftId())
+                .toUri();
         return ResponseEntity.created(location).body(created);
     }
 
