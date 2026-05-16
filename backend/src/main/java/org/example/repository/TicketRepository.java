@@ -19,7 +19,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
             "WHERE f.flightId = :flightId")
     Optional<Integer> findAircraftCapacityByFlightId(@Param("flightId") Integer flightId);
 
-    boolean existsByPassengerIdAndFlightId(Integer passengerId);
+    boolean existsByPassengerIdAndFlightId(Integer passengerId, Integer flightId);
 
     boolean existsByFlightIdAndSeatNumber(Integer flightId, String seatNumber);
 }

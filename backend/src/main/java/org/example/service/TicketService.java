@@ -37,7 +37,7 @@ public class TicketService {
             throw new IllegalArgumentException("Все места на рейсе проданы");
         }
 
-        if (dto.getPassengerId() != null && repository.existsByPassengerIdAndFlightId(dto.getPassengerId())){
+        if (dto.getPassengerId() != null && repository.existsByPassengerIdAndFlightId(dto.getPassengerId(), flightId)){
             throw new IllegalArgumentException("Пассажир уже имеет билет на данный рейс");
         }
 
