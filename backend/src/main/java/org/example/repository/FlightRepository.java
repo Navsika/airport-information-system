@@ -44,5 +44,9 @@ public interface FlightRepository extends JpaRepository<Flight, Integer> {
     @Query("SELECT a.modelId FROM Flight f JOIN Aircraft a ON f.aircraftId = a.aircraftId WHERE f.flightId = :flightId")
     Optional<Integer> findAircraftModelIdByFlightId(@Param("flightId") Integer flightId);
 
-    Integer findAircraftCapacityByFlightId(Integer flightId);
+    @Query("SELECT m.passengerCapacity FROM Flight f " +
+            "JOIN Aircraft a ON f.aircraftId = a.aircraftId " +
+            "JOIN AircraftModel m ON a.modelId = m.modelId " +
+            "WHERE f.flightId = :flightId")
+    Integer findAircraftCapacityByFlightId(@Param("flightId") Integer flightId);
 }
