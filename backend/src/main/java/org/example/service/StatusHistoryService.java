@@ -26,7 +26,7 @@ public class StatusHistoryService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void logStatusChange(Integer flightId, String oldStatus, String newStatus, String reason){
         if (oldStatus != null && oldStatus.equals(newStatus)) return;
         StatusHistory history = new StatusHistory();
