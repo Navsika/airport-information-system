@@ -11,11 +11,23 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
 public class FlightService {
+    private static final Map<String, Set<String>> ALLOWED_STATUS_TRANSITIONS = Map.of(
+            "Scheduled", Set.of("Check-in", "Delayed", "Cancelled"),
+            "Delayed", Set.of("Check-in", "Cancelled"),
+            "Check-in", Set.of("Boarding", "Cancelled"),
+            "Boarding", Set.of("Departed", "Cancelled"),
+            "Departed", Set.of("Arrived"),
+            "Arrived", Set.of(),
+            "Cancelled", Set.of()
+    );
+
     private final FlightRepository repository;
     private final FlightMapper flightMapper;
     private final StatusHistoryService statusHistoryService;
@@ -49,7 +61,10 @@ public class FlightService {
                 .orElseThrow(() -> new RuntimeException("Рейс не найден"));
         String oldStatus = flight.getStatus();
         String newStatus = dto.getStatus();
-        if (dto.getStatus() != null) flight.setStatus(dto.getStatus());
+        if (newStatus != null) {
+            validateStatusTransition(oldStatus, newStatus);
+            flight.setStatus(newStatus);
+        }
         if (dto.getGate() != null) flight.setGate(dto.getGate());
         if (dto.getAircraftId() != null) flight.setAircraftId(dto.getAircraftId());
         if (dto.getActualDeparture() != null) flight.setActualDeparture(dto.getActualDeparture());
@@ -77,5 +92,26 @@ public class FlightService {
         return repository.findById(flightId)
                 .map(Flight::getStatus)
                 .orElseThrow(() -> new RuntimeException("Рейс с ID " + flightId + " не найден"));
+    }
+
+    @Transactional(readOnly = true)
+    public Flight getFlightEntity(Integer flightId) {
+        return repository.findById(flightId)
+                .orElseThrow(() -> new RuntimeException("Рейс с ID " + flightId + " не найден"));
+    }
+
+    private void validateStatusTransition(String oldStatus, String newStatus) {
+        if (oldStatus == null || oldStatus.equals(newStatus)) {
+            return;
+        }
+        Set<String> allowedNextStatuses = ALLOWED_STATUS_TRANSITIONS.get(oldStatus);
+        if (allowedNextStatuses == null) {
+            throw new IllegalArgumentException("Неизвестный текущий статус рейса: " + oldStatus);
+        }
+        if (!allowedNextStatuses.contains(newStatus)) {
+            throw new IllegalArgumentException(
+                    "Недопустимый переход статуса рейса: " + oldStatus + " -> " + newStatus
+            );
+        }
     }
 }
