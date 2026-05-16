@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.dto.CheckInDto;
+import org.example.entity.Flight;
 import org.example.entity.CheckIns;
 import org.example.mapper.CheckInMapper;
 import org.example.repository.CheckInRepository;
@@ -8,18 +9,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class CheckInService {
     private final CheckInRepository repository;
     private final CheckInMapper mapper;
     private final TicketService ticketService;
+    private final FlightService flightService;
 
-    public CheckInService(CheckInRepository repository, CheckInMapper mapper, TicketService ticketService) {
+    public CheckInService(CheckInRepository repository, CheckInMapper mapper, TicketService ticketService, FlightService flightService) {
         this.repository = repository;
         this.mapper = mapper;
         this.ticketService = ticketService;
+        this.flightService = flightService;
     }
 
     @Transactional
@@ -27,11 +32,19 @@ public class CheckInService {
         if (repository.existsByTicketId(dto.getTicketId())){
             throw new IllegalArgumentException("Этот билет уже зарегистрирован");
         }
-        String flightStatus = ticketService.getFlightStatusByTicketId(dto.getTicketId());
-        if ("Departed".equals(flightStatus) || "Arrived".equals(flightStatus) || "Cancelled".equals(flightStatus)) {
-            throw new IllegalArgumentException("Регистрация на этот рейс закрыта (статус: " + flightStatus + ")");
+        Integer flightId = ticketService.findFlightIdByTicketId(dto.getTicketId());
+        Flight flight = flightService.getFlightEntity(flightId);
+        String flightStatus = flight.getStatus();
+        if (!Set.of("Check-in", "Boarding").contains(flightStatus)) {
+            throw new IllegalArgumentException("Регистрация доступна только в статусах Check-in или Boarding (текущий статус: " + flightStatus + ")");
         }
-        if (dto.getBaggageCount() < 0 || dto.getTotalBaggageWeight().compareTo(BigDecimal.ZERO) < 0) {
+        OffsetDateTime checkInDeadline = flight.getScheduledDeparture().minusMinutes(40);
+        OffsetDateTime now = OffsetDateTime.now(flight.getScheduledDeparture().getOffset());
+        if (now.isAfter(checkInDeadline)) {
+            throw new IllegalArgumentException("Регистрация закрыта: до планового вылета осталось меньше 40 минут");
+        }
+        if (dto.getBaggageCount() == null || dto.getTotalBaggageWeight() == null ||
+                dto.getBaggageCount() < 0 || dto.getTotalBaggageWeight().compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Количество и вес багажа не могут быть отрицательными");
         }
 

@@ -11,7 +11,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("//airport-info-system/api")
+@RequestMapping("/airport-info-system/api")
 public class CheckInController {
     private final CheckInService checkInService;
 
