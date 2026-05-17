@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface StatusHistoryRepository extends JpaRepository<StatusHistory, Integer> {
     List<StatusHistory> findByFlightId(Integer flightId);
+    List<StatusHistory> findByFlightIdOrderByChangeTimeDesc(Integer flightId);
 }
