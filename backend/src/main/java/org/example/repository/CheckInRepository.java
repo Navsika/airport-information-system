@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface CheckInRepository extends JpaRepository<CheckIns, Integer> {
-    @Query("SELECT c FROM CheckIn c JOIN Ticket t ON c.ticketId = t.ticketId" +
+    @Query("SELECT c FROM CheckIns c JOIN Ticket t ON c.ticketId = t.ticketId" +
             " WHERE t.flightId = :flightId")
     List<CheckIns> findByFlightId(@Param("flightId") Integer flightId);
 
