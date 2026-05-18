@@ -16,9 +16,9 @@ public interface PassengerRepository extends JpaRepository<Passenger, Integer> {
             "p.lastName, p.firstName, p.passportNumber, t.seatNumber, t.ticketClass, " +
             "CASE WHEN c.checkInId IS NOT NULL THEN true ELSE false END) " +
             "FROM Ticket t " +
-            "JOIN t.passenger p " +
-            "LEFT JOIN CheckIn c ON t.ticketId = c.ticket.ticketId " +
-            "WHERE t.flight.flightId = :flightId " +
+            "JOIN Passenger p ON t.passengerId = p.passengerId " +
+            "LEFT JOIN CheckIns c ON t.ticketId = c.ticketId " +
+            "WHERE t.flightId = :flightId " +
             "ORDER BY p.lastName ASC")
     List<FlightPassengerDto> findPassengersByFlightId(@Param("flightId") Integer flightId);
 
