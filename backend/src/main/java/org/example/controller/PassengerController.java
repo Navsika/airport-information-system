@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/airport-info-system/api/passengers")
@@ -21,6 +22,11 @@ public class PassengerController {
     @GetMapping("/search")
     public ResponseEntity<PassengerDto> searchByPassport(@RequestParam String passportNumber) {
         return ResponseEntity.ok(passengerService.getByPassportNumber(passportNumber));
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<List<PassengerDto>> getList() {
+        return ResponseEntity.ok(passengerService.getAllForDropdown());
     }
 
     @GetMapping("/{id}")
