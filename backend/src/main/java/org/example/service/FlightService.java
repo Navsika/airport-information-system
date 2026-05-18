@@ -5,12 +5,16 @@ import org.example.dto.FlightListDto;
 import org.example.entity.Flight;
 import org.example.mapper.FlightMapper;
 import org.example.repository.FlightRepository;
+import org.example.repository.FlightSpecifications;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -42,10 +46,21 @@ public class FlightService {
     public Page<FlightListDto> getFlightListWithRoute(
             String status, OffsetDateTime dateFrom, OffsetDateTime dateTo,
             Integer departureAirportId, Integer arrivalAirportId,
-            int page, int size
+            String aircraftRegNumber, int page, int size
     ) {
-        return repository.findFlightsWithRoute(
-                status, dateFrom, dateTo, departureAirportId, arrivalAirportId, PageRequest.of(page, size, Sort.by("scheduledDeparture").descending()));
+        Pageable pageable = PageRequest.of(page, size, Sort.by("scheduledDeparture").descending());
+        Page<Flight> flightPage = repository.findAll(
+                FlightSpecifications.withFilters(status, dateFrom, dateTo, departureAirportId, arrivalAirportId, aircraftRegNumber),
+                pageable
+        );
+        List<Integer> flightIds = flightPage.getContent().stream()
+                .map(Flight::getFlightId)
+                .toList();
+        if (flightIds.isEmpty()) {
+            return new PageImpl<>(List.of(), pageable, flightPage.getTotalElements());
+        }
+        List<FlightListDto> flightsWithRoute = repository.findFlightsWithRouteByIds(flightIds);
+        return new PageImpl<>(flightsWithRoute, pageable, flightPage.getTotalElements());
     }
 
     @Transactional(readOnly = true)
@@ -75,6 +90,19 @@ public class FlightService {
         }
         Flight saved = repository.save(flight);
         return flightMapper.toDto(saved);
+    }
+
+    @Transactional
+    public FlightDto updateFlightStatus(Integer flightId, String newStatus, String reasonOfChange) {
+        Flight flight = repository.findById(flightId)
+                .orElseThrow(() -> new RuntimeException("Рейс не найден"));
+        String oldStatus = flight.getStatus();
+        validateStatusTransition(oldStatus, newStatus);
+        if (!newStatus.equals(oldStatus)) {
+            flight.setStatus(newStatus);
+            statusHistoryService.logStatusChange(flightId, oldStatus, newStatus, reasonOfChange);
+        }
+        return flightMapper.toDto(repository.save(flight));
     }
 
     @Transactional(readOnly = true)
