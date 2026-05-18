@@ -13,8 +13,8 @@ import java.util.Optional;
 @Repository
 public interface AircraftModelRepository extends JpaRepository<AircraftModel, Integer> {
     @Query("SELECT am FROM AircraftModel am WHERE " +
-            "(:modelName IS NULL OR LOWER(am.modelName) = LOWER(:modelName)) AND " +
-            "(:manufacturer IS NULL OR am.manufacturer = :manufacturer) AND " +
+            "(:modelName IS NULL OR LOWER(am.modelName) LIKE LOWER(CONCAT(:modelName, '%'))) AND " +
+            "(:manufacturer IS NULL OR LOWER(am.manufacturer) LIKE LOWER(CONCAT(:manufacturer, '%'))) AND " +
             "(:passengerCapacity IS NULL OR am.passengerCapacity = :passengerCapacity) AND " +
             "(:cargoCapacity IS NULL OR am.cargoCapacity = :cargoCapacity) AND " +
             "(:maxSpeed IS NULL OR am.maxSpeed = :maxSpeed)")

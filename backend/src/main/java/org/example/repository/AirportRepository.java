@@ -11,9 +11,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AirportRepository extends JpaRepository<Airport, Integer> {
     @Query("SELECT a FROM Airport a WHERE " +
-            "(:country IS NULL OR LOWER(a.country) = LOWER(:country)) AND " +
-            "(:city IS NULL OR LOWER(a.city) LIKE LOWER(CONCAT('%', :city, '%'))) AND " +
-            "(:iataCode IS NULL OR LOWER(a.iataCode) = LOWER(:iataCode))")
+            "(:country IS NULL OR LOWER(a.country) LIKE LOWER(CONCAT(:country, '%'))) AND " +
+            "(:city IS NULL OR LOWER(a.city) LIKE LOWER(CONCAT(:city, '%'))) AND " +
+            "(:iataCode IS NULL OR LOWER(a.iataCode) LIKE LOWER(CONCAT(:iataCode, '%')))")
     Page<Airport> findByFilters(
             @Param("country") String country,
             @Param("city") String city,
