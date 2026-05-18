@@ -27,6 +27,13 @@ public class PassengerService {
                 .orElseThrow(() -> new RuntimeException("Пассажир с паспортом " + passportNumber + " не найден"));
     }
 
+    @Transactional(readOnly = true)
+    public List<PassengerDto> getAllForDropdown() {
+        return repository.findAll().stream()
+                .map(mapper::toDto)
+                .toList();
+    }
+
     @Transactional
     public PassengerDto createPassenger(PassengerDto dto) {
         if (repository.existsByPassportNumber(dto.getPassportNumber())) {
