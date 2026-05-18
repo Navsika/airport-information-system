@@ -7,6 +7,7 @@ import org.example.repository.StatusHistoryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -21,7 +22,7 @@ public class StatusHistoryService {
 
     @Transactional(readOnly = true)
     public List<StatusHistoryDto> getHistoryByFlightId(Integer flightId){
-        return repository.findByFlightId(flightId)
+        return repository.findByFlightIdOrderByChangeTimeDesc(flightId)
                 .stream().map(mapper::toDto)
                 .toList();
     }
@@ -32,6 +33,7 @@ public class StatusHistoryService {
         StatusHistory history = new StatusHistory();
         history.setFlightId(flightId);
         history.setStatus(newStatus);
+        history.setChangeTime(LocalDateTime.now());
         history.setReason(reason);
         repository.save(history);
     }
