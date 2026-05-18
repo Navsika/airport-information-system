@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.example.dto.FlightDto;
 import org.example.dto.FlightListDto;
 import org.example.dto.FlightPassengerDto;
+import org.example.dto.FlightStatusUpdateDto;
 import org.example.dto.StatusHistoryDto;
 import org.example.service.FlightService;
 import org.example.service.PassengerService;
@@ -35,11 +36,12 @@ public class FlightController {
             @RequestParam(required = false) OffsetDateTime dateTo,
             @RequestParam(required = false) Integer departureAirportId,
             @RequestParam(required = false) Integer arrivalAirportId,
+            @RequestParam(required = false) String aircraftRegNumber,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
 
         return ResponseEntity.ok(flightService.getFlightListWithRoute(
-                status, dateFrom, dateTo, departureAirportId, arrivalAirportId, page, size
+                status, dateFrom, dateTo, departureAirportId, arrivalAirportId, aircraftRegNumber, page, size
         ));
     }
 
@@ -57,6 +59,18 @@ public class FlightController {
 
         FlightDto updated = flightService.updateFlight(flightId, dto, reasonOfChange);
         return ResponseEntity.ok(updated);
+    }
+
+    @PatchMapping("/{flightId}/status")
+    public ResponseEntity<FlightDto> updateStatus(
+            @PathVariable Integer flightId,
+            @RequestBody @Valid FlightStatusUpdateDto dto
+    ) {
+        return ResponseEntity.ok(flightService.updateFlightStatus(
+                flightId,
+                dto.getStatus(),
+                dto.getReasonOfChange()
+        ));
     }
 
     @GetMapping("/{flightId}/passengers")

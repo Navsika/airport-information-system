@@ -1,0 +1,13 @@
+package org.example.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class FlightStatusUpdateDto {
+    @NotBlank(message = "Статус обязателен")
+    private String status;
+    private String reasonOfChange;
+}
