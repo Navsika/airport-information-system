@@ -8,8 +8,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 @Service
 public class AssignmentService {
+    private static final int MAX_FLIGHT_ATTENDANTS = 3;
+    private static final Set<String> SINGLE_CREW_ROLES = Set.of(
+            "Commander",
+            "Co-pilot",
+            "Senior Flight Attendant"
+    );
+
     private final AssignmentRepository repository;
     private final FlightService flightService;
     private final QualificationService qualificationService;
@@ -33,6 +41,14 @@ public class AssignmentService {
     public AssignmentDto assignCrew(AssignmentDto dto){
         if (repository.existsByFlightIdAndEmployeeId(dto.getFlightId(), dto.getEmployeeId())) {
             throw new IllegalArgumentException("Данный сотрудник уже назначен на данный рейс");
+        }
+        if (SINGLE_CREW_ROLES.contains(dto.getEmployeeRole())
+                && repository.existsByFlightIdAndEmployeeRole(dto.getFlightId(), dto.getEmployeeRole())) {
+            throw new IllegalArgumentException("На рейс уже назначен сотрудник с ролью " + dto.getEmployeeRole());
+        }
+        if ("Flight Attendant".equals(dto.getEmployeeRole())
+                && repository.countByFlightIdAndEmployeeRole(dto.getFlightId(), "Flight Attendant") >= MAX_FLIGHT_ATTENDANTS) {
+            throw new IllegalArgumentException("На рейс нельзя назначить больше " + MAX_FLIGHT_ATTENDANTS + " бортпроводников");
         }
         if (repository.hasOverlappingAssignment(dto.getEmployeeId(), dto.getFlightId())){
             throw new IllegalArgumentException("Сотрудник не может быть назначен на данный рейс: занят на другом рейсе");
