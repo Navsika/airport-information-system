@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -57,6 +58,7 @@ public class TicketService {
 
         Ticket ticket = mapper.toEntity(dto);
         ticket.setFlightId(flightId);
+        ticket.setTicketNumber(generateTicketNumber(flightId));
         ticket.setPurchaseDate(LocalDate.now());
 
         Ticket save = repository.save(ticket);
@@ -75,5 +77,11 @@ public class TicketService {
         Ticket ticket = repository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Билет с ID " + ticketId + " не найден"));
         return flightService.getFlightStatus(ticket.getFlightId());
+    }
+
+    private String generateTicketNumber(Integer flightId) {
+        String datePart = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
+        long uniquePart = System.nanoTime() % 100_000;
+        return String.format("T%d-%s-%05d", flightId, datePart, uniquePart);
     }
 }
