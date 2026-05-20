@@ -26,4 +26,6 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Integer>
     boolean existsByFlightIdAndEmployeeId(Integer flightId, Integer employeeId);
 
     boolean existsByFlightIdAndEmployeeRole(Integer flightId, String employeeRole);
+
+    long countByFlightIdAndEmployeeRole(Integer flightId, String employeeRole);
 }
