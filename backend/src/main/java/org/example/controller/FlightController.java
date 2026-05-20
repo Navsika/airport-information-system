@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.example.dto.FlightDto;
 import org.example.dto.FlightListDto;
 import org.example.dto.FlightPassengerDto;
+import org.example.dto.FlightStatsDto;
 import org.example.dto.FlightStatusUpdateDto;
 import org.example.dto.StatusHistoryDto;
 import org.example.service.FlightService;
@@ -48,6 +49,11 @@ public class FlightController {
     @GetMapping("/{flightId}")
     public ResponseEntity<FlightDto> getById(@PathVariable Integer flightId) {
         return ResponseEntity.ok(flightService.getById(flightId));
+    }
+
+    @GetMapping("/{flightId}/stats")
+    public ResponseEntity<FlightStatsDto> getStats(@PathVariable Integer flightId) {
+        return ResponseEntity.ok(flightService.getFlightStats(flightId));
     }
 
     @PatchMapping("/{flightId}")

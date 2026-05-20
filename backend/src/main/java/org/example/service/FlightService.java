@@ -2,10 +2,13 @@ package org.example.service;
 
 import org.example.dto.FlightDto;
 import org.example.dto.FlightListDto;
+import org.example.dto.FlightStatsDto;
 import org.example.entity.Flight;
 import org.example.mapper.FlightMapper;
+import org.example.repository.CheckInRepository;
 import org.example.repository.FlightRepository;
 import org.example.repository.FlightSpecifications;
+import org.example.repository.TicketRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -33,11 +36,15 @@ public class FlightService {
     );
 
     private final FlightRepository repository;
+    private final TicketRepository ticketRepository;
+    private final CheckInRepository checkInRepository;
     private final FlightMapper flightMapper;
     private final StatusHistoryService statusHistoryService;
 
-    public FlightService(FlightRepository repository, FlightMapper flightMapper, StatusHistoryService statusHistoryService) {
+    public FlightService(FlightRepository repository, TicketRepository ticketRepository, CheckInRepository checkInRepository, FlightMapper flightMapper, StatusHistoryService statusHistoryService) {
         this.repository = repository;
+        this.ticketRepository = ticketRepository;
+        this.checkInRepository = checkInRepository;
         this.flightMapper = flightMapper;
         this.statusHistoryService = statusHistoryService;
     }
@@ -68,6 +75,31 @@ public class FlightService {
         return repository.findById(flightId)
                 .map(flightMapper::toDto)
                 .orElseThrow(() -> new RuntimeException("Рейс не найден"));
+    }
+
+    @Transactional(readOnly = true)
+    public FlightStatsDto getFlightStats(Integer flightId) {
+        Flight flight = repository.findById(flightId)
+                .orElseThrow(() -> new RuntimeException("Рейс не найден"));
+        long soldTickets = ticketRepository.countByFlightId(flightId);
+        long checkedInPassengers = checkInRepository.countByFlightId(flightId);
+        int showUpPercent = soldTickets == 0 ? 0 : (int) Math.round((checkedInPassengers * 100.0) / soldTickets);
+        Double baggageWeight = checkInRepository.sumBaggageWeightByFlightId(flightId);
+        Integer capacity = flight.getAircraftId() == null ? null : repository.findAircraftCapacityByFlightId(flightId);
+        Integer baggageLimit = flight.getAircraftId() == null ? null : repository.findAircraftCargoCapacityByFlightId(flightId);
+        int baggagePercent = baggageLimit == null || baggageLimit == 0
+                ? 0
+                : (int) Math.round(((baggageWeight == null ? 0.0 : baggageWeight) * 100.0) / baggageLimit);
+
+        return new FlightStatsDto(
+                soldTickets,
+                capacity,
+                checkedInPassengers,
+                showUpPercent,
+                baggageWeight == null ? 0.0 : baggageWeight,
+                baggageLimit,
+                baggagePercent
+        );
     }
 
     @Transactional
