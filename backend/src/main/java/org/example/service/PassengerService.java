@@ -14,10 +14,12 @@ import java.util.List;
 public class PassengerService {
     private final PassengerRepository repository;
     private final PassengerMapper mapper;
+    private final FlightService flightService;
 
-    public PassengerService(PassengerRepository repository, PassengerMapper mapper) {
+    public PassengerService(PassengerRepository repository, PassengerMapper mapper, FlightService flightService) {
         this.repository = repository;
         this.mapper = mapper;
+        this.flightService = flightService;
     }
 
     @Transactional(readOnly = true)
@@ -34,6 +36,13 @@ public class PassengerService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<PassengerDto> searchByName(String lastName, String firstName) {
+        return repository.findByNameFilters(normalizeTextFilter(lastName), normalizeTextFilter(firstName)).stream()
+                .map(mapper::toDto)
+                .toList();
+    }
+
     @Transactional
     public PassengerDto createPassenger(PassengerDto dto) {
         if (repository.existsByPassportNumber(dto.getPassportNumber())) {
@@ -45,7 +54,36 @@ public class PassengerService {
 
     @Transactional(readOnly = true)
     public List<FlightPassengerDto> getPassengersByFlightId(Integer flightId) {
-        return repository.findPassengersByFlightId(flightId);
+        String flightStatus = flightService.getFlightStatus(flightId);
+        return repository.findPassengersByFlightId(flightId).stream()
+                .map(passenger -> withActualFlightStatus(passenger, flightStatus))
+                .toList();
+    }
+
+    private FlightPassengerDto withActualFlightStatus(FlightPassengerDto passenger, String flightStatus) {
+        String passengerStatus = resolvePassengerFlightStatus(passenger.isCheckedIn(), flightStatus);
+        return new FlightPassengerDto(
+                passenger.getLastName(),
+                passenger.getFirstName(),
+                passenger.getPassportNumber(),
+                passenger.getSeatNumber(),
+                passenger.getTicketClass(),
+                passenger.isCheckedIn(),
+                passengerStatus
+        );
+    }
+
+    private String resolvePassengerFlightStatus(boolean checkedIn, String flightStatus) {
+        if (checkedIn) {
+            return "CHECKED_IN";
+        }
+        if ("Departed".equals(flightStatus) || "Arrived".equals(flightStatus)) {
+            return "NO_SHOW";
+        }
+        if ("Cancelled".equals(flightStatus)) {
+            return "CANCELLED";
+        }
+        return "PENDING";
     }
 
     @Transactional(readOnly = true)
@@ -53,5 +91,9 @@ public class PassengerService {
         Passenger passenger = repository.findById(id)
             .orElseThrow(() -> new RuntimeException("Пассажир с ID " + id + " не найден"));
         return mapper.toDto(passenger);
-    }   
+    }
+
+    private String normalizeTextFilter(String value) {
+        return value == null ? "" : value.trim().toLowerCase();
+    }
 }
