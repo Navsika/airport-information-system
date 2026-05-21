@@ -24,7 +24,11 @@ public class AirlineService {
     @Transactional(readOnly = true)
     public Page<AirlineDto> getAirlinesByFilter(String iataCode, String airlineName, String country,
                                                 int page, int size){
-        return repository.findByFilters(iataCode, airlineName, country, PageRequest.of(page, size))
+        return repository.findByFilters(
+                        normalizeTextFilter(iataCode),
+                        normalizeTextFilter(airlineName),
+                        normalizeTextFilter(country),
+                        PageRequest.of(page, size))
                 .map(mapper::toDto);
     }
 
@@ -69,5 +73,9 @@ public class AirlineService {
         existing.setAirlineName(dto.getAirlineName());
         existing.setCountry(dto.getCountry());
         return mapper.toDto(repository.save(existing));
+    }
+
+    private String normalizeTextFilter(String value) {
+        return value == null ? "" : value.trim().toLowerCase();
     }
 }
