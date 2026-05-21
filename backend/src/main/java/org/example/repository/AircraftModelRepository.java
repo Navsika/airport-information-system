@@ -13,17 +13,23 @@ import java.util.Optional;
 @Repository
 public interface AircraftModelRepository extends JpaRepository<AircraftModel, Integer> {
     @Query("SELECT am FROM AircraftModel am WHERE " +
-            "(:modelName IS NULL OR LOWER(am.modelName) LIKE LOWER(CONCAT(:modelName, '%'))) AND " +
-            "(:manufacturer IS NULL OR LOWER(am.manufacturer) LIKE LOWER(CONCAT(:manufacturer, '%'))) AND " +
-            "(:passengerCapacity IS NULL OR am.passengerCapacity = :passengerCapacity) AND " +
-            "(:cargoCapacity IS NULL OR am.cargoCapacity = :cargoCapacity) AND " +
-            "(:maxSpeed IS NULL OR am.maxSpeed = :maxSpeed)")
+            "LOWER(am.modelName) LIKE CONCAT(:modelName, '%') AND " +
+            "LOWER(am.manufacturer) LIKE CONCAT(:manufacturer, '%') AND " +
+            "am.passengerCapacity >= :passengerCapacityMin AND " +
+            "am.passengerCapacity <= :passengerCapacityMax AND " +
+            "am.cargoCapacity >= :cargoCapacityMin AND " +
+            "am.cargoCapacity <= :cargoCapacityMax AND " +
+            "am.maxSpeed >= :maxSpeedMin AND " +
+            "am.maxSpeed <= :maxSpeedMax")
     Page<AircraftModel> findModelByFilters(
             @Param("modelName") String modelName,
             @Param("manufacturer") String manufacturer,
-            @Param("passengerCapacity") Short passengerCapacity,
-            @Param("cargoCapacity") Integer cargoCapacity,
-            @Param("maxSpeed") Short maxSpeed,
+            @Param("passengerCapacityMin") Short passengerCapacityMin,
+            @Param("passengerCapacityMax") Short passengerCapacityMax,
+            @Param("cargoCapacityMin") Integer cargoCapacityMin,
+            @Param("cargoCapacityMax") Integer cargoCapacityMax,
+            @Param("maxSpeedMin") Short maxSpeedMin,
+            @Param("maxSpeedMax") Short maxSpeedMax,
             Pageable pageable
     );
 
