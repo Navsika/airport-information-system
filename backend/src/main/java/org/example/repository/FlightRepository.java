@@ -16,7 +16,7 @@ public interface FlightRepository extends JpaRepository<Flight, Integer>, JpaSpe
 
     @Query("SELECT new org.example.dto.FlightListDto(" +
             "f.flightId, s.flightNumber, al.airlineName, " +
-            "dep.airportName, arr.airportName, " +
+            "dep.airportName, dep.city, arr.airportName, arr.city, " +
             "f.scheduledDeparture, f.scheduledArrival, " +
             "f.actualDeparture, f.actualArrival, " +
             "f.status, f.gate, ac.registrationNumber, am.passengerCapacity) " +

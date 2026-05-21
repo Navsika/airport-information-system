@@ -12,7 +12,9 @@ public class FlightListDto {
     private String flightNumber;
     private String airlineName;
     private String departureAirport;
+    private String departureCity;
     private String arrivalAirport;
+    private String arrivalCity;
     private OffsetDateTime scheduledDeparture;
     private OffsetDateTime scheduledArrival;
     private OffsetDateTime actualDeparture;

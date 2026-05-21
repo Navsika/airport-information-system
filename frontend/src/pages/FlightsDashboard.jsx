@@ -143,9 +143,9 @@ export const FlightsDashboard = () => {
                   </td>
                   <td className="px-5 py-4">
                     <div className="inline-grid max-w-full grid-cols-[minmax(0,1fr)_2.25rem_minmax(0,1fr)] items-center gap-2 text-sm font-semibold text-slate-800">
-                      <span className="min-w-0 truncate">{item.departureAirport}</span>
+                      <RoutePoint airport={item.departureAirport} city={item.departureCity} />
                       <span className="text-center text-base font-semibold text-sky-600">⟶</span>
-                      <span className="min-w-0 truncate">{item.arrivalAirport}</span>
+                      <RoutePoint airport={item.arrivalAirport} city={item.arrivalCity} />
                     </div>
                   </td>
                   <td className="px-5 py-4">
@@ -353,6 +353,19 @@ const SchedulePoint = ({ value }) => (
   </div>
 );
 
+const RoutePoint = ({ airport, city }) => (
+  <span className="grid min-w-0 gap-0.5">
+    <span className="min-w-0 truncate leading-tight">{airport}</span>
+    {city && <span className="min-w-0 truncate text-xs font-medium text-slate-400">{city}</span>}
+  </span>
+);
+
+const formatRouteLabel = (item) => {
+  const departure = item.departureCity ? `${item.departureAirport}, ${item.departureCity}` : item.departureAirport;
+  const arrival = item.arrivalCity ? `${item.arrivalAirport}, ${item.arrivalCity}` : item.arrivalAirport;
+  return `${departure} → ${arrival}`;
+};
+
 const formatScheduleTemplateTime = (item) => {
   const suffix = item.arrivalDayOffset ? ` +${item.arrivalDayOffset} дн.` : '';
   return `${String(item.departureTime || '').slice(0, 5)} → ${String(item.arrivalTime || '').slice(0, 5)}${suffix}`;
@@ -466,7 +479,9 @@ const FlightModal = ({ flightRow, onClose, onChanged }) => {
                 <h2 className="text-3xl font-semibold text-slate-950">{flightRow.flightNumber}</h2>
                 <StatusBadge status={currentFlight.status} />
               </div>
-              <p className="mt-1 text-sm text-slate-500">{flightRow.airlineName} · {flightRow.departureAirport} → {flightRow.arrivalAirport}</p>
+              <p className="mt-1 text-sm text-slate-500">
+                {flightRow.airlineName} · {formatRouteLabel(flightRow)}
+              </p>
             </div>
             <button className={buttonGhost} onClick={onClose}>Закрыть</button>
           </div>
