@@ -24,13 +24,19 @@ public class AircraftModelController {
     public ResponseEntity<Page<AircraftModelDto>> getAll(
             @RequestParam(required = false) String modelName,
             @RequestParam(required = false) String manufacturer,
-            @RequestParam(required = false) Short passengerCapacity,
-            @RequestParam(required = false) Integer cargoCapacity,
-            @RequestParam(required = false) Short maxSpeed,
+            @RequestParam(required = false) Short passengerCapacityMin,
+            @RequestParam(required = false) Short passengerCapacityMax,
+            @RequestParam(required = false) Integer cargoCapacityMin,
+            @RequestParam(required = false) Integer cargoCapacityMax,
+            @RequestParam(required = false) Short maxSpeedMin,
+            @RequestParam(required = false) Short maxSpeedMax,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         return ResponseEntity.ok(aircraftModelService.getModelsByFilter(modelName, manufacturer,
-                passengerCapacity, cargoCapacity, maxSpeed, page, size));
+                passengerCapacityMin, passengerCapacityMax,
+                cargoCapacityMin, cargoCapacityMax,
+                maxSpeedMin, maxSpeedMax,
+                page, size));
     }
 
     @GetMapping("/{id}")
