@@ -8,6 +8,7 @@ export const Layout = () => {
 
     const items = [
         { to: "/", label: "Рейсы", end: true },
+        { to: "/operations", label: "Пассажирские операции" },
         { to: "/models", label: "Модели" },
         { to: "/aircrafts", label: "Самолеты" },
         { to: "/passengers", label: "Пассажиры" },
