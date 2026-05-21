@@ -25,7 +25,12 @@ public class EmployeeService {
     @Transactional(readOnly = true)
     public Page<EmployeeDto> getEmployeesByFilter(String category, String lastName,
                                                   LocalDate hireDateFrom, LocalDate hireDateTo, int page, int size) {
-        return repository.findByFilters(category, lastName, hireDateFrom, hireDateTo, PageRequest.of(page, size))
+        return repository.findByFilters(
+                        normalizeTextFilter(category),
+                        normalizeTextFilter(lastName),
+                        hireDateFrom == null ? LocalDate.of(1900, 1, 1) : hireDateFrom,
+                        hireDateTo == null ? LocalDate.of(2999, 12, 31) : hireDateTo,
+                        PageRequest.of(page, size))
                 .map(mapper::toDto);
     }
 
@@ -59,5 +64,9 @@ public class EmployeeService {
         exist.setCategory(dto.getCategory());
 
         return mapper.toDto(repository.save(exist));
+    }
+
+    private String normalizeTextFilter(String value) {
+        return value == null ? "" : value.trim().toLowerCase();
     }
 }

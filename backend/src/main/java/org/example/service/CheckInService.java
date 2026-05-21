@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -35,13 +34,8 @@ public class CheckInService {
         Integer flightId = ticketService.findFlightIdByTicketId(dto.getTicketId());
         Flight flight = flightService.getFlightEntity(flightId);
         String flightStatus = flight.getStatus();
-        if (!Set.of("Check-in", "Boarding").contains(flightStatus)) {
-            throw new IllegalArgumentException("Регистрация доступна только в статусах Check-in или Boarding (текущий статус: " + flightStatus + ")");
-        }
-        OffsetDateTime checkInDeadline = flight.getScheduledDeparture().minusMinutes(40);
-        OffsetDateTime now = OffsetDateTime.now(flight.getScheduledDeparture().getOffset());
-        if (now.isAfter(checkInDeadline)) {
-            throw new IllegalArgumentException("Регистрация закрыта: до планового вылета осталось меньше 40 минут");
+        if (!Set.of("Check-in").contains(flightStatus)) {
+            throw new IllegalArgumentException("Регистрация доступна только в статусе Check-in (текущий статус: " + flightStatus + ")");
         }
         if (dto.getBaggageCount() == null || dto.getTotalBaggageWeight() == null ||
                 dto.getBaggageCount() < 0 || dto.getTotalBaggageWeight().compareTo(BigDecimal.ZERO) < 0) {

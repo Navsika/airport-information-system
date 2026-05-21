@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.example.dto.AssignmentDto;
 import org.example.entity.Assignment;
+import org.example.entity.Flight;
 import org.example.mapper.AssignmentMapper;
 import org.example.repository.AssignmentRepository;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,11 @@ public class AssignmentService {
             "Commander",
             "Co-pilot",
             "Senior Flight Attendant"
+    );
+    private static final Set<String> CLOSED_FLIGHT_STATUSES = Set.of(
+            "Departed",
+            "Arrived",
+            "Cancelled"
     );
 
     private final AssignmentRepository repository;
@@ -39,6 +45,9 @@ public class AssignmentService {
 
     @Transactional
     public AssignmentDto assignCrew(AssignmentDto dto){
+        Flight flight = flightService.getFlightEntity(dto.getFlightId());
+        validateFlightAllowsCrewAssignment(flight);
+
         if (repository.existsByFlightIdAndEmployeeId(dto.getFlightId(), dto.getEmployeeId())) {
             throw new IllegalArgumentException("Данный сотрудник уже назначен на данный рейс");
         }
@@ -67,6 +76,12 @@ public class AssignmentService {
         Assignment assignment = mapper.toEntity(dto);
         Assignment saved = repository.save(assignment);
         return mapper.toDto(saved);
+    }
+
+    private void validateFlightAllowsCrewAssignment(Flight flight) {
+        if (CLOSED_FLIGHT_STATUSES.contains(flight.getStatus())) {
+            throw new IllegalArgumentException("Нельзя назначать экипаж на рейс со статусом " + flight.getStatus());
+        }
     }
 
     @Transactional

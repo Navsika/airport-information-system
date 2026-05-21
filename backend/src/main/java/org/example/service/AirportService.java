@@ -22,7 +22,11 @@ public class AirportService {
 
     @Transactional(readOnly = true)
     public Page<AirportDto> getAirportsByFilter(String country, String city, String iataCode, int page, int size){
-        return airportRepository.findByFilters(country, city, iataCode, PageRequest.of(page, size))
+        return airportRepository.findByFilters(
+                        normalizeTextFilter(country),
+                        normalizeTextFilter(city),
+                        normalizeTextFilter(iataCode),
+                        PageRequest.of(page, size))
                 .map(airportMapper::toDto);
     }
 
@@ -64,5 +68,9 @@ public class AirportService {
         }
         Airport updated = airportRepository.save(exist);
         return airportMapper.toDto(updated);
+    }
+
+    private String normalizeTextFilter(String value) {
+        return value == null ? "" : value.trim().toLowerCase();
     }
 }
