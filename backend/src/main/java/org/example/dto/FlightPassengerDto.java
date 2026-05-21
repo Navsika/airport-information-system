@@ -12,4 +12,5 @@ public class FlightPassengerDto {
     private String seatNumber;
     private String ticketClass;
     private boolean isCheckedIn;
+    private String passengerFlightStatus;
 }

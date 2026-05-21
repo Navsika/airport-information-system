@@ -20,4 +20,5 @@ public class FlightListDto {
     private String status;
     private String gate;
     private String aircraftRegNumber;
+    private Short passengerCapacity;
 }
