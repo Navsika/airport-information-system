@@ -82,7 +82,6 @@ CREATE TABLE aircrafts
     CONSTRAINT fk_aircraft_airline
         FOREIGN KEY (airline_id)
         REFERENCES airlines(airline_id)
-        ON DELETE SET NULL
         ON UPDATE CASCADE,
 
     CONSTRAINT chk_correct_year CHECK (manufacture_year <= EXTRACT(YEAR FROM CURRENT_DATE)),
@@ -156,7 +155,7 @@ CREATE TABLE tickets
 (
     ticket_id 		INT GENERATED ALWAYS AS IDENTITY,
     ticket_number 	VARCHAR(20) NOT NULL UNIQUE,
-    passenger_id 	INTEGER,
+    passenger_id 	INTEGER NOT NULL,
     flight_id 		INTEGER NOT NULL,
     ticket_class 	VARCHAR(10) NOT NULL,
     seat_number 	VARCHAR(10) NOT NULL,
@@ -166,7 +165,7 @@ CREATE TABLE tickets
   	CONSTRAINT fk_ticket_passenger
   		FOREIGN KEY (passenger_id)
   		REFERENCES passengers(passenger_id)
-  		ON DELETE CASCADE
+  		ON DELETE RESTRICT
   		ON UPDATE CASCADE,
 
   	CONSTRAINT fk_ticket_flight

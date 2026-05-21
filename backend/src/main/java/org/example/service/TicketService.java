@@ -32,13 +32,17 @@ public class TicketService {
 
     @Transactional
     public TicketDto sellTicket(Integer flightId, TicketDto dto){
+        if (dto.getPassengerId() == null) {
+            throw new IllegalArgumentException("Пассажир обязателен для оформления билета");
+        }
+
         Integer capacity = flightService.getAircraftCapacityByFlightId(flightId);
         long sold = repository.countByFlightId(flightId);
         if (sold >= capacity){
             throw new IllegalArgumentException("Все места на рейсе проданы");
         }
 
-        if (dto.getPassengerId() != null && repository.existsByPassengerIdAndFlightId(dto.getPassengerId(), flightId)){
+        if (repository.existsByPassengerIdAndFlightId(dto.getPassengerId(), flightId)){
             throw new IllegalArgumentException("Пассажир уже имеет билет на данный рейс");
         }
 

@@ -24,7 +24,7 @@ public class Ticket {
     private Integer ticketId;
     @Column(name = "ticket_number", length = 20, nullable = false, unique = true)
     private String ticketNumber;
-    @Column(name = "passenger_id")
+    @Column(name = "passenger_id", nullable = false)
     private Integer passengerId;
     @Column(name = "flight_id", nullable = false)
     private Integer flightId;

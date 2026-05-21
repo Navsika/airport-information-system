@@ -2,6 +2,7 @@ package org.example.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class TicketDto {
     private Integer ticketId;
 
     private String ticketNumber;
+    @NotNull(message = "Пассажир обязателен для оформления билета")
     private Integer passengerId;
     private Integer flightId;
     private String ticketClass;
