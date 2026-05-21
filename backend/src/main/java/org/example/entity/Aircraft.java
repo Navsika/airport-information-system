@@ -28,7 +28,6 @@ public class Aircraft {
     private Integer modelId;
     @Column(name = "airline_id", nullable = false)
     private Integer airlineId;
-    // тут нужно будет проверить
     @Column(name = "manufacture_year", nullable = false)
     private Short manufactureYear;
     @PastOrPresent(message = "Дата последнего техобслуживания не может быть в будущем")
