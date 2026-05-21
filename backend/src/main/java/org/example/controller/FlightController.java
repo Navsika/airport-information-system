@@ -1,6 +1,8 @@
 package org.example.controller;
 
 import jakarta.validation.Valid;
+
+import org.example.dto.FlightCreateDto;
 import org.example.dto.FlightDto;
 import org.example.dto.FlightListDto;
 import org.example.dto.FlightPassengerDto;
@@ -13,7 +15,9 @@ import org.example.service.StatusHistoryService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -51,6 +55,17 @@ public class FlightController {
         return ResponseEntity.ok(flightService.getById(flightId));
     }
 
+        @PostMapping
+    public ResponseEntity<FlightDto> create(@RequestBody @Valid FlightCreateDto dto) {
+        FlightDto created = flightService.createFlight(dto);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(created.getFlightId())
+                .toUri();
+        return ResponseEntity.created(location).body(created);
+    }
+
     @GetMapping("/{flightId}/stats")
     public ResponseEntity<FlightStatsDto> getStats(@PathVariable Integer flightId) {
         return ResponseEntity.ok(flightService.getFlightStats(flightId));
@@ -62,7 +77,6 @@ public class FlightController {
             @RequestBody @Valid FlightDto dto,
             @RequestParam(required = false) String reasonOfChange
     ) {
-
         FlightDto updated = flightService.updateFlight(flightId, dto, reasonOfChange);
         return ResponseEntity.ok(updated);
     }

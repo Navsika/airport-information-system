@@ -20,6 +20,11 @@ public class ScheduleController {
         this.scheduleService = scheduleService;
     }
 
+    @GetMapping
+    public ResponseEntity<List<ScheduleSearchDto>> getAllForSelection() {
+        return ResponseEntity.ok(scheduleService.getAllForSelection());
+    }
+
     @GetMapping("/search")
     public ResponseEntity<List<ScheduleSearchDto>> searchByCities(
             @RequestParam String departureCity,

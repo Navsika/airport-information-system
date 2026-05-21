@@ -1,13 +1,17 @@
 package org.example.service;
 
+import org.example.dto.FlightCreateDto;
 import org.example.dto.FlightDto;
 import org.example.dto.FlightListDto;
 import org.example.dto.FlightStatsDto;
 import org.example.entity.Flight;
+import org.example.entity.Schedule;
 import org.example.mapper.FlightMapper;
+import org.example.repository.AircraftRepository;
 import org.example.repository.CheckInRepository;
 import org.example.repository.FlightRepository;
 import org.example.repository.FlightSpecifications;
+import org.example.repository.ScheduleRepository;
 import org.example.repository.TicketRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -16,7 +20,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,13 +43,17 @@ public class FlightService {
     );
 
     private final FlightRepository repository;
+    private final ScheduleRepository scheduleRepository;
+    private final AircraftRepository aircraftRepository;
     private final TicketRepository ticketRepository;
     private final CheckInRepository checkInRepository;
     private final FlightMapper flightMapper;
     private final StatusHistoryService statusHistoryService;
 
-    public FlightService(FlightRepository repository, TicketRepository ticketRepository, CheckInRepository checkInRepository, FlightMapper flightMapper, StatusHistoryService statusHistoryService) {
+    public FlightService(FlightRepository repository, ScheduleRepository scheduleRepository, AircraftRepository aircraftRepository, TicketRepository ticketRepository, CheckInRepository checkInRepository, FlightMapper flightMapper, StatusHistoryService statusHistoryService) {
         this.repository = repository;
+        this.scheduleRepository = scheduleRepository;
+        this.aircraftRepository = aircraftRepository;
         this.ticketRepository = ticketRepository;
         this.checkInRepository = checkInRepository;
         this.flightMapper = flightMapper;
@@ -77,6 +88,45 @@ public class FlightService {
                 .orElseThrow(() -> new RuntimeException("Рейс не найден"));
     }
 
+    @Transactional
+    public FlightDto createFlight(FlightCreateDto dto) {
+        Schedule schedule = scheduleRepository.findById(dto.getScheduleId())
+                .orElseThrow(() -> new RuntimeException("Шаблон расписания не найден"));
+
+        OffsetDateTime scheduledDeparture = toFlightDateTime(dto.getFlightDate(), schedule.getDepartureTime());
+        OffsetDateTime scheduledArrival = toFlightDateTime(
+                dto.getFlightDate().plusDays(schedule.getArrivalDayOffset()),
+                schedule.getArrivalTime()
+        );
+
+        if (!scheduledArrival.isAfter(scheduledDeparture)) {
+            throw new IllegalArgumentException("Плановое время прибытия должно быть позже вылета");
+        }
+        if (repository.existsByScheduleIdAndScheduledDeparture(schedule.getScheduleId(), scheduledDeparture)) {
+            throw new IllegalArgumentException("Рейс по этому шаблону на выбранную дату уже создан");
+        }
+        if (dto.getAircraftId() != null) {
+            if (!aircraftRepository.existsById(dto.getAircraftId())) {
+                throw new RuntimeException("Самолет не найден");
+            }
+            if (repository.countAircraftOverlaps(dto.getAircraftId(), scheduledDeparture, scheduledArrival) > 0) {
+                throw new IllegalArgumentException("Самолет уже назначен на другой рейс в это время");
+            }
+        }
+
+        Flight flight = new Flight();
+        flight.setScheduleId(schedule.getScheduleId());
+        flight.setScheduledDeparture(scheduledDeparture);
+        flight.setScheduledArrival(scheduledArrival);
+        flight.setAircraftId(dto.getAircraftId());
+        flight.setGate(normalizeGate(dto.getGate()));
+        flight.setStatus("Scheduled");
+
+        Flight saved = repository.save(flight);
+        statusHistoryService.logStatusChange(saved.getFlightId(), null, "Scheduled", "Рейс создан");
+        return flightMapper.toDto(saved);
+    }
+
     @Transactional(readOnly = true)
     public FlightStatsDto getFlightStats(Integer flightId) {
         Flight flight = repository.findById(flightId)
@@ -84,19 +134,20 @@ public class FlightService {
         long soldTickets = ticketRepository.countByFlightId(flightId);
         long checkedInPassengers = checkInRepository.countByFlightId(flightId);
         int showUpPercent = soldTickets == 0 ? 0 : (int) Math.round((checkedInPassengers * 100.0) / soldTickets);
-        Double baggageWeight = checkInRepository.sumBaggageWeightByFlightId(flightId);
+        BigDecimal baggageWeight = Optional.ofNullable(checkInRepository.sumBaggageWeightByFlightId(flightId))
+                .orElse(BigDecimal.ZERO);
         Integer capacity = flight.getAircraftId() == null ? null : repository.findAircraftCapacityByFlightId(flightId);
         Integer baggageLimit = flight.getAircraftId() == null ? null : repository.findAircraftCargoCapacityByFlightId(flightId);
         int baggagePercent = baggageLimit == null || baggageLimit == 0
                 ? 0
-                : (int) Math.round(((baggageWeight == null ? 0.0 : baggageWeight) * 100.0) / baggageLimit);
+                : (int) Math.round((baggageWeight.doubleValue() * 100.0) / baggageLimit);
 
         return new FlightStatsDto(
                 soldTickets,
                 capacity,
                 checkedInPassengers,
                 showUpPercent,
-                baggageWeight == null ? 0.0 : baggageWeight,
+                baggageWeight.doubleValue(),
                 baggageLimit,
                 baggagePercent
         );
@@ -173,5 +224,17 @@ public class FlightService {
                     "Недопустимый переход статуса рейса: " + oldStatus + " -> " + newStatus
             );
         }
+    }
+
+    private OffsetDateTime toFlightDateTime(LocalDate date, java.time.LocalTime time) {
+        ZoneOffset offset = OffsetDateTime.now().getOffset();
+        return OffsetDateTime.of(date, time, offset);
+    }
+
+    private String normalizeGate(String gate) {
+        if (gate == null || gate.isBlank()) {
+            return null;
+        }
+        return gate.trim().toUpperCase();
     }
 }

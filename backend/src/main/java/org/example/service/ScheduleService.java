@@ -27,6 +27,11 @@ public class ScheduleService {
         return repository.findByDepartureCityAndArrivalCity(depCity, arrCity);
     }
 
+    @Transactional(readOnly = true)
+    public List<ScheduleSearchDto> getAllForSelection() {
+        return repository.findAllForSelection();
+    }
+
     @Transactional
     public ScheduleDto createSchedule(ScheduleDto dto){
         if (repository.existsByFlightNumber(dto.getFlightNumber())){

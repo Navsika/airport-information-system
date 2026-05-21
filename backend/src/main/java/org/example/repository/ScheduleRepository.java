@@ -26,6 +26,16 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
             @Param("arrCity") String arrCity
     );
 
+    @Query("SELECT new org.example.dto.ScheduleSearchDto(" +
+            "s.scheduleId, s.flightNumber, al.airlineName, dep.city, arr.city, " +
+            "s.departureTime, s.arrivalTime, s.arrivalDayOffset) " +
+            "FROM Schedule s " +
+            "JOIN Airline al ON s.airlineId = al.airlineId " +
+            "JOIN Airport dep ON s.departureAirport = dep.airportId " +
+            "JOIN Airport arr ON s.arrivalAirport = arr.airportId " +
+            "ORDER BY s.flightNumber")
+    List<ScheduleSearchDto> findAllForSelection();
+
     Optional<Schedule> findByFlightNumber(String flightNumber);
 
     boolean existsByFlightNumber(String flightNumber);
