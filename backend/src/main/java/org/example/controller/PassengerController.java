@@ -24,6 +24,14 @@ public class PassengerController {
         return ResponseEntity.ok(passengerService.getByPassportNumber(passportNumber));
     }
 
+    @GetMapping
+    public ResponseEntity<List<PassengerDto>> getAll(
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) String firstName
+    ) {
+        return ResponseEntity.ok(passengerService.searchByName(lastName, firstName));
+    }
+
     @GetMapping("/list")
     public ResponseEntity<List<PassengerDto>> getList() {
         return ResponseEntity.ok(passengerService.getAllForDropdown());
