@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,9 +20,9 @@ public interface CheckInRepository extends JpaRepository<CheckIns, Integer> {
             " WHERE t.flightId = :flightId")
     long countByFlightId(@Param("flightId") Integer flightId);
 
-    @Query("SELECT COALESCE(SUM(c.totalBaggageWeight), 0) FROM CheckIns c JOIN Ticket t ON c.ticketId = t.ticketId" +
+    @Query("SELECT SUM(c.totalBaggageWeight) FROM CheckIns c JOIN Ticket t ON c.ticketId = t.ticketId" +
             " WHERE t.flightId = :flightId")
-    Double sumBaggageWeightByFlightId(@Param("flightId") Integer flightId);
+    BigDecimal sumBaggageWeightByFlightId(@Param("flightId") Integer flightId);
 
     boolean existsByTicketId(Integer ticketId);
 
