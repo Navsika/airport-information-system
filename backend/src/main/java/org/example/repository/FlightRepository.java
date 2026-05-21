@@ -38,13 +38,13 @@ public interface FlightRepository extends JpaRepository<Flight, Integer>, JpaSpe
             "JOIN Aircraft a ON f.aircraftId = a.aircraftId " +
             "JOIN AircraftModel m ON a.modelId = m.modelId " +
             "WHERE f.flightId = :flightId")
-    Integer findAircraftCapacityByFlightId(@Param("flightId") Integer flightId);
+    Optional<Integer> findAircraftCapacityByFlightId(@Param("flightId") Integer flightId);
 
     @Query("SELECT m.cargoCapacity FROM Flight f " +
             "JOIN Aircraft a ON f.aircraftId = a.aircraftId " +
             "JOIN AircraftModel m ON a.modelId = m.modelId " +
             "WHERE f.flightId = :flightId")
-    Integer findAircraftCargoCapacityByFlightId(@Param("flightId") Integer flightId);
+    Optional<Integer> findAircraftCargoCapacityByFlightId(@Param("flightId") Integer flightId);
 
     boolean existsByScheduleIdAndScheduledDeparture(Integer scheduleId, OffsetDateTime scheduledDeparture);
 
