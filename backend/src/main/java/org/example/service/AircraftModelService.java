@@ -23,11 +23,22 @@ public class AircraftModelService {
 
     @Transactional(readOnly = true)
     public Page<AircraftModelDto> getModelsByFilter(
-            String modelName, String manufacturer, Short passengerCapacity,
-            Integer cargoCapacity, Short maxSpeed, int page, int size) {
+            String modelName, String manufacturer,
+            Short passengerCapacityMin, Short passengerCapacityMax,
+            Integer cargoCapacityMin, Integer cargoCapacityMax,
+            Short maxSpeedMin, Short maxSpeedMax,
+            int page, int size) {
 
-        return repository.findModelByFilters(modelName, manufacturer, passengerCapacity,
-                        cargoCapacity, maxSpeed, PageRequest.of(page, size))
+        return repository.findModelByFilters(
+                        normalizeTextFilter(modelName),
+                        normalizeTextFilter(manufacturer),
+                        passengerCapacityMin == null ? 0 : passengerCapacityMin,
+                        passengerCapacityMax == null ? Short.MAX_VALUE : passengerCapacityMax,
+                        cargoCapacityMin == null ? 0 : cargoCapacityMin,
+                        cargoCapacityMax == null ? Integer.MAX_VALUE : cargoCapacityMax,
+                        maxSpeedMin == null ? 0 : maxSpeedMin,
+                        maxSpeedMax == null ? Short.MAX_VALUE : maxSpeedMax,
+                        PageRequest.of(page, size))
                 .map(mapper::toDto);
     }
 
@@ -63,5 +74,9 @@ public class AircraftModelService {
         AircraftModel model = mapper.toEntity(aircraftModelDto);
         AircraftModel saved = repository.save(model);
         return mapper.toDto(saved);
+    }
+
+    private String normalizeTextFilter(String value) {
+        return value == null ? "" : value.trim().toLowerCase();
     }
 }
