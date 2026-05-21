@@ -1,4 +1,3 @@
-// src/services/flightService.js
 import api from './api';
 
 export const flight = {
@@ -20,6 +19,7 @@ export const flight = {
             page, size } }).then(res => res.data);
   },
   getById: (id) => api.get(`/flights/${id}`).then(res => res.data),
+  create: (data) => api.post('/flights', data).then(res => res.data),
   update: (id, data, reasonOfChange) => api.patch(`/flights/${id}`, data, { params: { reasonOfChange } }).then(res => res.data),
   updateStatus: (id, status, reasonOfChange) => api.patch(`/flights/${id}/status`, { status, reasonOfChange }).then(res => res.data),
   getPassengers: (id) => api.get(`/flights/${id}/passengers`).then(res => res.data),

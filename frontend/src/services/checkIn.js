@@ -1,4 +1,3 @@
-// src/services/checkInService.js
 import api from './api';
 
 export const checkIn = {

@@ -1,4 +1,3 @@
-// src/services/employeeService.js
 import api from './api';
 
 export const employee = {
