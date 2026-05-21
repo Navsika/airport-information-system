@@ -16,15 +16,13 @@ import java.util.Optional;
 @Repository
 public interface AircraftRepository extends JpaRepository<Aircraft, Integer> {
     Optional<Aircraft> findByRegistrationNumber(String registrationNumber);
-    //запрос для того, чтобы найти самолет по номеру при нажатии на кнопку изменить
-    // он должен находить по идее да? а как он узнает что за регистрационный номер,
-    // если мы не будем показывать
+
     @Query("SELECT a FROM Aircraft a WHERE " +
-            "(:modelId IS NULL OR a.modelId = :modelId) AND " +
-            " (:airlineId IS NULL OR a.airlineId = :airlineId) AND " +
-            " (:manufactureYear IS NULL OR a.manufactureYear = :manufactureYear) AND " +
-            " (:lastMaintenanceDate IS NULL OR a.lastMaintenanceDate = :lastMaintenanceDate) AND " +
-            " (:flightHours IS NULL OR a.flightHours = :flightHours)")
+            "a.modelId = COALESCE(:modelId, a.modelId) AND " +
+            "a.airlineId = COALESCE(:airlineId, a.airlineId) AND " +
+            "a.manufactureYear = COALESCE(:manufactureYear, a.manufactureYear) AND " +
+            "a.lastMaintenanceDate = COALESCE(:lastMaintenanceDate, a.lastMaintenanceDate) AND " +
+            "a.flightHours = COALESCE(:flightHours, a.flightHours)")
     Page<Aircraft> findByFilters(
             @Param("modelId") Integer modelId,
             @Param("airlineId") Integer airlineId,
@@ -39,8 +37,8 @@ public interface AircraftRepository extends JpaRepository<Aircraft, Integer> {
             @Param("threshold") LocalDate threshold,
             Pageable pageable
     );
-    //запрос для получения самолетов которым нужно тех обсулживание
-    @Modifying
+
+    @Modifying(clearAutomatically = true)
     @Transactional
     @Query("UPDATE Aircraft a SET a.flightHours = a.flightHours + :hours WHERE a.aircraftId = :id")
     void addFlightHours(
