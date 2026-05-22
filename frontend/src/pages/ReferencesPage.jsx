@@ -130,10 +130,10 @@ export const ReferencesPage = () => {
 
         <div className="flex items-center justify-between text-sm text-slate-600">
           <span>Страница {page + 1} из {totalPages}</span>
-          <div className="flex gap-2">
-            <button className={ghostButton} disabled={page === 0} onClick={() => setPage((value) => Math.max(value - 1, 0))}>Назад</button>
-            <button className={ghostButton} disabled={page + 1 >= totalPages} onClick={() => setPage((value) => value + 1)}>Вперед</button>
-          </div>
+{/*             <div className="flex gap-2">
+              <button className={ghostButton} disabled={page === 0} onClick={() => setPage((value) => Math.max(value - 1, 0))}>Назад</button>
+              <button className={ghostButton} disabled={page + 1 >= totalPages} onClick={() => setPage((value) => value + 1)}>Вперед</button>
+            </div> */}
         </div>
       </section>
     </div>
